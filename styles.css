@@ -10,6 +10,10 @@ body {
     background-color: #faf9f7;
 }
 
+h1, h2, h3 {
+    font-family: 'Playfair Display', serif;
+}
+
 header {
     background-color: #e8e0f0;
     padding: 20px 40px;

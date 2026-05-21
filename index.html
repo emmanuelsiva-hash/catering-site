@@ -5,7 +5,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Catering Service</title>
         <link rel="stylesheet" href="styles.css">
-         <link rel="preconnect" href="https://fonts.googleapis.com">
     </head>
     <body>
 
@@ -54,18 +53,18 @@
             <section id="order">
                 <h2>Place an Order</h2>
                 <p class="order-sub">Fill in the form below and we'll get back to you as soon as possible.</p>
-                <form class="order-form">
+                <form class="order-form" action="https://formspree.io/f/xbdbgnjr" method="POST">
                     <div class="form-group">
                         <label for="name">Your Name</label>
-                        <input type="text" id="name" placeholder="Jane Wanjiku" required>
+                        <input type="text" id="name" name="name" placeholder="Jane Wanjiku" required>
                     </div>
                     <div class="form-group">
                         <label for="phone">Phone / WhatsApp</label>
-                        <input type="tel" id="phone" placeholder="+254 7XX XXX XXX" required>
+                        <input type="tel" id="phone" name="phone" placeholder="+254 7XX XXX XXX" required>
                     </div>
                     <div class="form-group">
                         <label for="product">What would you like?</label>
-                        <select id="product">
+                        <select id="product" name="product">
                             <option value="">-- Select a product --</option>
                             <option value="bakes">Baked Goods</option>
                             <option value="gels">Shower Gels</option>
@@ -74,7 +73,7 @@
                     </div>
                     <div class="form-group">
                         <label for="message">Tell us more</label>
-                        <textarea id="message" rows="4" placeholder="E.g. I'd like a chocolate cake for 20 people..."></textarea>
+                        <textarea id="message" name="message" rows="4" placeholder="E.g. I'd like a chocolate cake for 20 people..."></textarea>
                     </div>
                     <button type="submit" class="btn">Send Order</button>
                 </form>
