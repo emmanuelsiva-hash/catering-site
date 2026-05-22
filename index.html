@@ -133,6 +133,7 @@
 
             let currentAngle = 0;
             let startX = 0;
+            let startY = 0;
             let isDragging = false;
             let autoRotate;
 
@@ -180,16 +181,24 @@
                 carousel.addEventListener('touchstart', (e) => {
                     isDragging = true;
                     startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
                     stopAutoRotate();
                 }, { passive: true });
 
                 carousel.addEventListener('touchmove', (e) => {
                     if (!isDragging) return;
-                    const diff = e.touches[0].clientX - startX;
-                    currentAngle += diff * 0.3;
-                    carousel.style.transform = `rotateY(${currentAngle}deg)`;
-                    startX = e.touches[0].clientX;
-                }, { passive: true });
+                    const x = e.touches[0].clientX;
+                    const y = e.touches[0].clientY;
+                    const diffX = x - startX;
+                    const diffY = y - startY;
+                    if (Math.abs(diffX) > Math.abs(diffY)) {
+                        e.preventDefault();
+                        currentAngle += diffX * 0.15;
+                        carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                        startX = x;
+                        startY = y;
+                    }
+                }, { passive: false });
 
                 carousel.addEventListener('touchend', () => {
                     isDragging = false;
