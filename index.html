@@ -11,6 +11,11 @@
         <header>
             <nav>
                 <h1>Catering Service</h1>
+                <button class="nav-toggle" aria-label="Open navigation menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
                 <ul>
                     <li><a href="#about">About</a></li>
                     <li><a href="#products">Products</a></li>
@@ -123,6 +128,8 @@
             const lightbox = document.getElementById('lightbox');
             const lightboxImg = document.getElementById('lightboxImg');
             const lightboxClose = document.getElementById('lightboxClose');
+            const navToggle = document.querySelector('.nav-toggle');
+            const navElement = document.querySelector('nav');
 
             let currentAngle = 0;
             let startX = 0;
@@ -214,6 +221,21 @@
                             lightbox.classList.remove('active');
                             startAutoRotate();
                         }
+                    });
+                }
+
+                if (navToggle && navElement) {
+                    navToggle.addEventListener('click', () => {
+                        const isOpen = navElement.classList.toggle('open');
+                        navToggle.setAttribute('aria-expanded', isOpen);
+                    });
+                    navElement.querySelectorAll('a[href^="#"]').forEach(link => {
+                        link.addEventListener('click', () => {
+                            if (navElement.classList.contains('open')) {
+                                navElement.classList.remove('open');
+                                navToggle.setAttribute('aria-expanded', false);
+                            }
+                        });
                     });
                 }
             }
