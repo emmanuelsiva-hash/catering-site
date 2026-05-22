@@ -93,12 +93,18 @@
                         </div>
                         <div class="carousel-item" style="--i:9">
                             <img src="images/watermelon-feta-salad.png" alt="Watermelon Feta Salad">
+                        </div>
                     </div>
                 </div>
 
-                <div class="lightbox" id="lightbox">
-                    <button class="lightbox-close" id="lightboxClose">&times;</button>
-                    <img src="" alt="" id="lightboxImg">
+                <div class="lightbox" id="lightbox" aria-hidden="true">
+                    <div class="lightbox-inner">
+                        <div class="lightbox-content">
+                            <button class="lightbox-close" id="lightboxClose" aria-label="Close image preview">&times;</button>
+                            <div class="lightbox-spinner" id="lightboxSpinner" aria-hidden="true"></div>
+                            <img src="" alt="" id="lightboxImg">
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -141,6 +147,7 @@
             const items = document.querySelectorAll('.carousel-item');
             const lightbox = document.getElementById('lightbox');
             const lightboxImg = document.getElementById('lightboxImg');
+            const lightboxSpinner = document.getElementById('lightboxSpinner');
             const lightboxClose = document.getElementById('lightboxClose');
             const navToggle = document.querySelector('.nav-toggle');
             const navElement = document.querySelector('nav');
@@ -366,33 +373,49 @@
                 });
 
                 // Click to zoom (lightbox)
-                if (lightbox && lightboxImg && lightboxClose) {
-                    items.forEach(item => {
-                        item.addEventListener('click', () => {
-                            const img = item.querySelector('img');
-                            if (!img) return;
-                            // set a loading state and only show overlay once image is ready
-                            lightboxImg.src = img.src;
-                            lightboxImg.alt = img.alt || '';
-                            stopAutoRotate();
-                            document.body.classList.add('lightbox-open');
-                            lightbox.classList.add('active');
-                            if (navigator.vibrate) navigator.vibrate(15);
-                        });
-                    });
+                 if (lightbox && lightboxImg && lightboxClose && lightboxSpinner) {
+                     lightboxImg.style.opacity = '0';
+                     lightboxImg.onload = () => {
+                         lightboxSpinner.style.display = 'none';
+                         lightboxImg.style.opacity = '1';
+                         lightbox.setAttribute('aria-hidden', 'false');
+                         lightbox.classList.remove('loading');
+                     };
+                     lightboxImg.onerror = () => {
+                         lightboxSpinner.style.display = 'none';
+                         lightboxImg.style.opacity = '1';
+                         lightbox.setAttribute('aria-hidden', 'false');
+                         lightbox.classList.remove('loading');
+                     };
+                     items.forEach(item => {
+                         item.addEventListener('click', () => {
+                             const img = item.querySelector('img');
+                             if (!img) return;
+                             stopAutoRotate();
+                             lightboxSpinner.style.display = 'block';
+                             lightboxImg.style.opacity = '0';
+                             lightboxImg.src = img.src;
+                             lightboxImg.alt = img.alt || '';
+                             document.body.classList.add('lightbox-open');
+                             lightbox.setAttribute('aria-hidden', 'false');
+                             lightbox.classList.add('active', 'loading');
+                             if (navigator.vibrate) navigator.vibrate(15);
+                         });
+                     });
 
                     // Close lightbox
-                    lightboxClose.addEventListener('click', () => {
-                        lightbox.classList.remove('active');
+                    const closeLightbox = () => {
+                        lightbox.classList.remove('active', 'loading');
+                        lightbox.setAttribute('aria-hidden', 'true');
                         document.body.classList.remove('lightbox-open');
                         startAutoRotate();
-                    });
+                    };
+
+                    lightboxClose.addEventListener('click', closeLightbox);
 
                     lightbox.addEventListener('click', (e) => {
                         if (e.target === lightbox) {
-                            lightbox.classList.remove('active');
-                            document.body.classList.remove('lightbox-open');
-                            startAutoRotate();
+                            closeLightbox();
                         }
                     });
                 }

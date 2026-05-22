@@ -255,14 +255,19 @@ nav.open .nav-toggle span:nth-child(3) {
 .lightbox {
     display: none;
     position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.72);
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-width: 100%;
+    min-height: 100%;
+    background: rgba(255, 255, 255, 0.15);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     justify-content: center;
     align-items: center;
+    padding: 20px;
+    overflow: hidden;
     z-index: 1000;
 }
 
@@ -270,17 +275,57 @@ nav.open .nav-toggle span:nth-child(3) {
     display: flex;
 }
 
-/* prevent page from shifting when lightbox opens */
-body.lightbox-open {
-    overflow: hidden;
+.lightbox-inner {
+    width: 100%;
+    max-width: 1000px;
+    max-height: 90vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.lightbox-content {
+    position: relative;
+    width: 100%;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 18px;
+}
+
+.lightbox-spinner {
+    position: absolute;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 6px solid rgba(255, 255, 255, 0.25);
+    border-top-color: rgba(255, 255, 255, 0.9);
+    animation: spin 0.9s linear infinite;
+    display: none;
+    z-index: 1;
+}
+
+.lightbox.active.loading .lightbox-spinner {
+    display: block;
 }
 
 .lightbox img {
     max-width: 90%;
     max-height: 85vh;
+    width: auto;
+    height: auto;
     border-radius: 16px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     animation: zoomIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: opacity 0.2s ease;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 @keyframes zoomIn {
@@ -290,22 +335,28 @@ body.lightbox-open {
 
 .lightbox-close {
     position: absolute;
-    top: 20px;
-    right: 30px;
-    background: rgba(255,255,255,0.15);
-    border: none;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
     color: white;
     font-size: 1.5rem;
     width: 44px;
     height: 44px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.22);
+    color: #111;
     border-radius: 50%;
     cursor: pointer;
-    backdrop-filter: blur(4px);
-    transition: background 0.3s;
+    backdrop-filter: blur(6px);
+    transition: background 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
 }
 
-.lightbox-close:hover {
-    background: rgba(255,255,255,0.3);
+.lightbox-close:hover,
+.lightbox-close:focus {
+    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.75);
+    outline: none;
+    transform: scale(1.05);
 }
 
 .order-sub {
