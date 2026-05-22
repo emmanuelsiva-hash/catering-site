@@ -136,6 +136,9 @@
             let startY = 0;
             let isDragging = false;
             let autoRotate;
+            let originalTransition = '';
+            const dragSensitivity = 0.35;
+            let rafPending = false;
 
             // Only run carousel code when DOM elements exist
             if (carousel && items.length) {
@@ -156,24 +159,36 @@
 
                 startAutoRotate();
 
+                const scheduleRender = () => {
+                    if (rafPending) return;
+                    rafPending = true;
+                    requestAnimationFrame(() => {
+                        carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                        rafPending = false;
+                    });
+                };
+
                 // Mouse drag to rotate
                 carousel.addEventListener('mousedown', (e) => {
                     isDragging = true;
                     startX = e.clientX;
                     stopAutoRotate();
+                    originalTransition = carousel.style.transition || '';
+                    carousel.style.transition = 'none';
                 });
 
                 document.addEventListener('mousemove', (e) => {
                     if (!isDragging) return;
                     const diff = e.clientX - startX;
-                    currentAngle += diff * 0.3;
-                    carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                    currentAngle += diff * dragSensitivity;
+                    scheduleRender();
                     startX = e.clientX;
                 });
 
                 document.addEventListener('mouseup', () => {
                     if (!isDragging) return;
                     isDragging = false;
+                    carousel.style.transition = originalTransition;
                     startAutoRotate();
                 });
 
@@ -183,7 +198,9 @@
                     startX = e.touches[0].clientX;
                     startY = e.touches[0].clientY;
                     stopAutoRotate();
-                }, { passive: true });
+                    originalTransition = carousel.style.transition || '';
+                    carousel.style.transition = 'none';
+                }, { passive: false });
 
                 carousel.addEventListener('touchmove', (e) => {
                     if (!isDragging) return;
@@ -193,8 +210,8 @@
                     const diffY = y - startY;
                     if (Math.abs(diffX) > Math.abs(diffY)) {
                         e.preventDefault();
-                        currentAngle += diffX * 0.15;
-                        carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                        currentAngle += diffX * dragSensitivity;
+                        scheduleRender();
                         startX = x;
                         startY = y;
                     }
@@ -202,6 +219,7 @@
 
                 carousel.addEventListener('touchend', () => {
                     isDragging = false;
+                    carousel.style.transition = originalTransition;
                     startAutoRotate();
                 });
 
