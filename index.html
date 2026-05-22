@@ -168,38 +168,92 @@
                     });
                 };
 
-                // Mouse drag to rotate
+                // Inertia variables
+                let velocity = 0; // degrees per ms
+                let lastMoveTime = 0;
+                let inertiaId = null;
+                const friction = 0.0008; // higher = faster slowdown
+                const minVelocity = 0.02; // stop threshold (deg/ms)
+
+                const startInertia = () => {
+                    if (inertiaId) cancelAnimationFrame(inertiaId);
+                    const step = (ts) => {
+                        if (!lastMoveTime) lastMoveTime = ts;
+                        const dt = ts - lastMoveTime;
+                        lastMoveTime = ts;
+                        // apply velocity
+                        currentAngle += velocity * dt;
+                        scheduleRender();
+                        // apply exponential decay
+                        const decay = Math.exp(-friction * dt);
+                        velocity *= decay;
+                        if (Math.abs(velocity) > minVelocity) {
+                            inertiaId = requestAnimationFrame(step);
+                        } else {
+                            inertiaId = null;
+                            // small nudge to align smoothness, then resume autorotate
+                            startAutoRotate();
+                        }
+                    };
+                    lastMoveTime = 0;
+                    inertiaId = requestAnimationFrame(step);
+                };
+
+                const stopInertia = () => {
+                    if (inertiaId) cancelAnimationFrame(inertiaId);
+                    inertiaId = null;
+                };
+
+                // Mouse drag to rotate (with inertia)
                 carousel.addEventListener('mousedown', (e) => {
                     isDragging = true;
                     startX = e.clientX;
                     stopAutoRotate();
+                    stopInertia();
                     originalTransition = carousel.style.transition || '';
                     carousel.style.transition = 'none';
+                    lastMoveTime = performance.now();
+                    velocity = 0;
                 });
 
                 document.addEventListener('mousemove', (e) => {
                     if (!isDragging) return;
+                    const now = performance.now();
                     const diff = e.clientX - startX;
+                    const dt = Math.max(1, now - lastMoveTime);
+                    // pixels per ms -> convert to deg/ms via sensitivity
+                    const instVel = (diff * dragSensitivity) / dt;
+                    // smoothing velocity
+                    velocity = instVel * 0.6 + velocity * 0.4;
                     currentAngle += diff * dragSensitivity;
                     scheduleRender();
                     startX = e.clientX;
+                    lastMoveTime = now;
                 });
 
                 document.addEventListener('mouseup', () => {
                     if (!isDragging) return;
                     isDragging = false;
                     carousel.style.transition = originalTransition;
-                    startAutoRotate();
+                    // start inertia if velocity is significant
+                    if (Math.abs(velocity) > minVelocity) {
+                        startInertia();
+                    } else {
+                        startAutoRotate();
+                    }
                 });
 
-                // Touch handlers: start, move, end
+                // Touch handlers: start, move, end (with inertia)
                 carousel.addEventListener('touchstart', (e) => {
                     isDragging = true;
                     startX = e.touches[0].clientX;
                     startY = e.touches[0].clientY;
                     stopAutoRotate();
+                    stopInertia();
                     originalTransition = carousel.style.transition || '';
                     carousel.style.transition = 'none';
+                    lastMoveTime = performance.now();
+                    velocity = 0;
                 }, { passive: false });
 
                 carousel.addEventListener('touchmove', (e) => {
@@ -210,17 +264,26 @@
                     const diffY = y - startY;
                     if (Math.abs(diffX) > Math.abs(diffY)) {
                         e.preventDefault();
+                        const now = performance.now();
+                        const dt = Math.max(1, now - lastMoveTime);
+                        const instVel = (diffX * dragSensitivity) / dt;
+                        velocity = instVel * 0.6 + velocity * 0.4;
                         currentAngle += diffX * dragSensitivity;
                         scheduleRender();
                         startX = x;
                         startY = y;
+                        lastMoveTime = now;
                     }
                 }, { passive: false });
 
                 carousel.addEventListener('touchend', () => {
                     isDragging = false;
                     carousel.style.transition = originalTransition;
-                    startAutoRotate();
+                    if (Math.abs(velocity) > minVelocity) {
+                        startInertia();
+                    } else {
+                        startAutoRotate();
+                    }
                 });
 
                 // Click to zoom (lightbox)
