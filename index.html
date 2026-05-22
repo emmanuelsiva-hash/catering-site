@@ -34,19 +34,52 @@
                 <div class="products-grid">
 
                     <div class="product-card">
-                        <div class="product-img placeholder"></div>
+                        <div class="product-img">
+                            <img src="images/cake.png" alt="Freshly baked cake">
+                        </div>
                         <h3>Freshly Baked Goods</h3>
                         <p>Cakes, cookies, and more - baked fresh to order for any occasion.</p>
                         <a href="#order" class="btn-small">Order Now</a>
                     </div>
 
                     <div class="product-card">
-                        <div class="product-img placeholder"></div>
+                        <div class="product-img">
+                            <img src="images/chicken2.png" alt="Chicken garnished with parsley">
+                        </div>
                         <h3>Catering Services</h3>
-                        <p>Full catering for events, gatherings, and occasions of any size. Fresh, hommade, and made to order.</p>
+                        <p>Full catering for events, gatherings, and occasions of any size. Fresh, homemade, and made to order.</p>
                         <a href="#order" class="btn-small">Order Now</a>
                     </div>
 
+                </div>
+            </section>
+
+            <section id="gallery">
+                <h2>Our Work</h2>
+                <p class="gallery-sub">A taste of what we do</p>
+                <div class="carousel-container">
+                    <div class="carousel">
+                        <div class="carousel-item" style="--i:0">
+                            <img src="images/cake.png" alt="Cake">
+                        </div>
+                        <div class="carousel-item" style="--i:1">
+                            <img src="images/chicken2.5.png" alt="Chicken">
+                        </div>
+                        <div class="carousel-item" style="--i:2">
+                            <img src="images/chicken3.png" alt="Chicken">
+                        </div>
+                        <div class="carousel-item" style="--i:3">
+                            <img src="images/chicken4.png" alt="Chicken">
+                        </div>
+                        <div class="carousel-item" style="--i:4">
+                            <img src="images/salad.png" alt="Salad">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lightbox" id="lightbox">
+                    <button class="lightbox-close" id="lightboxClose">&times;</button>
+                    <img src="" alt="" id="lightboxImg">
                 </div>
             </section>
 
@@ -83,6 +116,108 @@
         <footer>
             <p>&copy; 2026 Catering Service. All rights reserved.</p>
         </footer>
-        
+
+        <script>
+            const carousel = document.querySelector('.carousel');
+            const items = document.querySelectorAll('.carousel-item');
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightboxImg');
+            const lightboxClose = document.getElementById('lightboxClose');
+
+            let currentAngle = 0;
+            let startX = 0;
+            let isDragging = false;
+            let autoRotate;
+
+            // Only run carousel code when DOM elements exist
+            if (carousel && items.length) {
+                // Auto rotate (gentler)
+                const rotationDelta = 0.15; // degrees per tick
+                const rotationIntervalMs = 60; // ms per tick
+                const startAutoRotate = () => {
+                    if (autoRotate) clearInterval(autoRotate);
+                    autoRotate = setInterval(() => {
+                        currentAngle -= rotationDelta;
+                        carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                    }, rotationIntervalMs);
+                };
+                const stopAutoRotate = () => {
+                    if (autoRotate) clearInterval(autoRotate);
+                    autoRotate = null;
+                };
+
+                startAutoRotate();
+
+                // Mouse drag to rotate
+                carousel.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    startX = e.clientX;
+                    stopAutoRotate();
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    const diff = e.clientX - startX;
+                    currentAngle += diff * 0.3;
+                    carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                    startX = e.clientX;
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    startAutoRotate();
+                });
+
+                // Touch handlers: start, move, end
+                carousel.addEventListener('touchstart', (e) => {
+                    isDragging = true;
+                    startX = e.touches[0].clientX;
+                    stopAutoRotate();
+                }, { passive: true });
+
+                carousel.addEventListener('touchmove', (e) => {
+                    if (!isDragging) return;
+                    const diff = e.touches[0].clientX - startX;
+                    currentAngle += diff * 0.3;
+                    carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                    startX = e.touches[0].clientX;
+                }, { passive: true });
+
+                carousel.addEventListener('touchend', () => {
+                    isDragging = false;
+                    startAutoRotate();
+                });
+
+                // Click to zoom (lightbox)
+                if (lightbox && lightboxImg && lightboxClose) {
+                    items.forEach(item => {
+                        item.addEventListener('click', () => {
+                            const img = item.querySelector('img');
+                            if (!img) return;
+                            lightboxImg.src = img.src;
+                            lightboxImg.alt = img.alt || '';
+                            lightbox.classList.add('active');
+                            stopAutoRotate();
+                            if (navigator.vibrate) navigator.vibrate(15);
+                        });
+                    });
+
+                    // Close lightbox
+                    lightboxClose.addEventListener('click', () => {
+                        lightbox.classList.remove('active');
+                        startAutoRotate();
+                    });
+
+                    lightbox.addEventListener('click', (e) => {
+                        if (e.target === lightbox) {
+                            lightbox.classList.remove('active');
+                            startAutoRotate();
+                        }
+                    });
+                }
+            }
+        </script>
+
     </body>
 </html>
