@@ -79,6 +79,20 @@
                         <div class="carousel-item" style="--i:4">
                             <img src="images/salad.png" alt="Salad">
                         </div>
+                        <div class="carousel-item" style="--i:5">
+                            <img src="images/rice.png" alt="Rice">
+                        </div>
+                        <div class="carousel-item" style="--i:6">
+                            <img src="images/chapati-ugali.png" alt="Soft Breads">
+                        </div>
+                        <div class="carousel-item" style="--i:7">
+                            <img src="images/pot-roasts.png" alt="Pot Roasts">
+                        </div>
+                        <div class="carousel-item" style="--i:8">
+                            <img src="images/tossed-salad.png" alt="Tossed Salad">
+                        </div>
+                        <div class="carousel-item" style="--i:9">
+                            <img src="images/watermelon-feta-salad.png" alt="Watermelon Feta Salad">
                     </div>
                 </div>
 
@@ -139,25 +153,65 @@
             let originalTransition = '';
             const dragSensitivity = 0.35;
             let rafPending = false;
+            let itemCount = 0;
+            let theta = 360;
+            let radius = 480;
+
+
+            // compute per-item angles and radius dynamically based on item count
+            const computeCarouselLayout = () => {
+                itemCount = items.length;
+                if (!itemCount) return;
+                const itemEl = items[0];
+                const itemWidth = itemEl.offsetWidth || parseInt(getComputedStyle(itemEl).width) || 320;
+                theta = 360 / itemCount;
+                // radius formula: r = (itemWidth/2) / tan(pi/count)
+                let computed = itemCount > 1 ? Math.round((itemWidth / 2) / Math.tan(Math.PI / itemCount)) : 0;
+                // clamp radius so items don't disappear on small screens or overflow on large screens
+                const maxRadius = Math.min(window.innerWidth, 1200);
+                const minRadius = Math.max(itemWidth / 2, 180);
+                radius = Math.max(minRadius, Math.min(computed, maxRadius));
+                items.forEach((item, i) => {
+                    const angle = theta * i;
+                    item.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
+                    item.style.setProperty('--i', i);
+                });
+                // ensure carousel reflects currentAngle after layout change
+                carousel.style.transform = `rotateY(${currentAngle}deg)`;
+            };
+
+            window.addEventListener('load', computeCarouselLayout);
+            window.addEventListener('resize', computeCarouselLayout);
 
             // Only run carousel code when DOM elements exist
             if (carousel && items.length) {
-                // Auto rotate (gentler)
-                const rotationDelta = 0.15; // degrees per tick
-                const rotationIntervalMs = 60; // ms per tick
+                // layout globals
+                let itemCount = items.length;
+                let theta = 360 / itemCount;
+                let radius = 0;
+
+                // Auto-rotate using requestAnimationFrame for smoothness
+                let autoRotateId = null;
+                let lastAutoTs = null;
+                const autoRotateSpeed = 6 / 1000; // degrees per ms (6 deg/s)
                 const startAutoRotate = () => {
-                    if (autoRotate) clearInterval(autoRotate);
-                    autoRotate = setInterval(() => {
-                        currentAngle -= rotationDelta;
+                    stopAutoRotate();
+                    lastAutoTs = null;
+                    const step = (ts) => {
+                        if (!lastAutoTs) lastAutoTs = ts;
+                        const dt = ts - lastAutoTs;
+                        lastAutoTs = ts;
+                        currentAngle -= autoRotateSpeed * dt;
                         carousel.style.transform = `rotateY(${currentAngle}deg)`;
-                    }, rotationIntervalMs);
+                        autoRotateId = requestAnimationFrame(step);
+                    };
+                    autoRotateId = requestAnimationFrame(step);
                 };
                 const stopAutoRotate = () => {
-                    if (autoRotate) clearInterval(autoRotate);
-                    autoRotate = null;
+                    if (autoRotateId) cancelAnimationFrame(autoRotateId);
+                    autoRotateId = null;
+                    lastAutoTs = null;
                 };
-
-                startAutoRotate();
 
                 const scheduleRender = () => {
                     if (rafPending) return;
@@ -175,6 +229,30 @@
                 const friction = 0.0008; // higher = faster slowdown
                 const minVelocity = 0.02; // stop threshold (deg/ms)
 
+                const snapToNearest = () => {
+                    if (!itemCount) return;
+                    // normalize angle to [0, 360)
+                    const normalized = ((currentAngle % 360) + 360) % 360;
+                    // find nearest index so that item at index is at 0deg (front)
+                    const indexFloat = normalized / theta;
+                    const nearestIndex = Math.round(indexFloat) % itemCount;
+                    // target angle to bring nearestIndex to front
+                    const targetAngle = nearestIndex * theta;
+                    // compute shortest direction
+                    let delta = targetAngle - normalized;
+                    if (delta > 180) delta -= 360;
+                    if (delta < -180) delta += 360;
+                    // animate snap
+                    carousel.style.transition = 'transform 700ms cubic-bezier(0.22, 0.9, 0.33, 1)';
+                    currentAngle += delta;
+                    carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                    // after animation, remove transition and restart auto-rotate
+                    setTimeout(() => {
+                        carousel.style.transition = originalTransition || '';
+                        startAutoRotate();
+                    }, 750);
+                };
+
                 const startInertia = () => {
                     if (inertiaId) cancelAnimationFrame(inertiaId);
                     const step = (ts) => {
@@ -191,8 +269,8 @@
                             inertiaId = requestAnimationFrame(step);
                         } else {
                             inertiaId = null;
-                            // small nudge to align smoothness, then resume autorotate
-                            startAutoRotate();
+                            // snap to nearest item when inertia ends
+                            snapToNearest();
                         }
                     };
                     lastMoveTime = 0;
@@ -239,7 +317,8 @@
                     if (Math.abs(velocity) > minVelocity) {
                         startInertia();
                     } else {
-                        startAutoRotate();
+                        // snap to nearest item for a tidy finish
+                        snapToNearest();
                     }
                 });
 
@@ -282,7 +361,7 @@
                     if (Math.abs(velocity) > minVelocity) {
                         startInertia();
                     } else {
-                        startAutoRotate();
+                        snapToNearest();
                     }
                 });
 
@@ -292,10 +371,12 @@
                         item.addEventListener('click', () => {
                             const img = item.querySelector('img');
                             if (!img) return;
+                            // set a loading state and only show overlay once image is ready
                             lightboxImg.src = img.src;
                             lightboxImg.alt = img.alt || '';
-                            lightbox.classList.add('active');
                             stopAutoRotate();
+                            document.body.classList.add('lightbox-open');
+                            lightbox.classList.add('active');
                             if (navigator.vibrate) navigator.vibrate(15);
                         });
                     });
@@ -303,12 +384,14 @@
                     // Close lightbox
                     lightboxClose.addEventListener('click', () => {
                         lightbox.classList.remove('active');
+                        document.body.classList.remove('lightbox-open');
                         startAutoRotate();
                     });
 
                     lightbox.addEventListener('click', (e) => {
                         if (e.target === lightbox) {
                             lightbox.classList.remove('active');
+                            document.body.classList.remove('lightbox-open');
                             startAutoRotate();
                         }
                     });
@@ -328,6 +411,21 @@
                         });
                     });
                 }
+
+                // keyboard navigation: left/right to rotate by one slot
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                        stopAutoRotate();
+                        const dir = e.key === 'ArrowLeft' ? 1 : -1;
+                        carousel.style.transition = 'transform 500ms cubic-bezier(0.22, 0.9, 0.33, 1)';
+                        currentAngle += dir * theta;
+                        carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                        setTimeout(() => {
+                            carousel.style.transition = originalTransition || '';
+                            startAutoRotate();
+                        }, 520);
+                    }
+                });
             }
         </script>
 

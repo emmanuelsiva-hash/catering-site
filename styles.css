@@ -255,12 +255,12 @@ nav.open .nav-toggle span:nth-child(3) {
 .lightbox {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(8px);
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.72);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
     justify-content: center;
     align-items: center;
     z-index: 1000;
@@ -268,6 +268,11 @@ nav.open .nav-toggle span:nth-child(3) {
 
 .lightbox.active {
     display: flex;
+}
+
+/* prevent page from shifting when lightbox opens */
+body.lightbox-open {
+    overflow: hidden;
 }
 
 .lightbox img {
