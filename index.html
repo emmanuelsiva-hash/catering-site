@@ -3,14 +3,21 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Amber & Crimson</title>
+        <title>Aurelian & Urian</title>
         <link rel="stylesheet" href="styles.css">
     </head>
     <body>
 
         <header>
             <nav>
-                <h1>Amber & Crimson</h1>
+                <a class="brand" href="#home">
+                    <picture>
+                        <source type="image/webp" srcset="images/credits/aurelian-urian-logo.webp">
+                        <source type="image/png" srcset="images/credits/aurelian-urian-logo.png">
+                        <img src="images/credits/aurelian-urian-logo.png" alt="Aurelian & Urian" class="brand-logo">
+                    </picture>
+                    <span class="brand-text">Aurelian & Urian</span>
+                </a>
                 <button class="nav-toggle" aria-label="Open navigation menu" aria-expanded="false">
                     <span></span>
                     <span></span>
@@ -28,7 +35,7 @@
             <section id="hero">
                 <div class="hero-content">
                     <p class="hero-tag">Handcrafted with love since 2012</p>
-                    <h2>Amber & Crimson — Fresh Cake, Food & Full-Service Catering</h2>
+                    <h2>Aurelian & Urian — Fresh Cake, Food & Full-Service Catering</h2>
                     <p class="hero-sub">Order custom cakes, home-made meals, or full catering menus created by a trained caterer and professional chef.</p>
                     <p class="hero-sub">Available for weddings, parties, office events, and private celebrations.</p>
                     <p class="hero-note">For catering availability, see the About section for direct contact details. Use the form below for bakery and food orders.</p>
@@ -112,16 +119,22 @@
                             <img src="images/rice.png" alt="Rice" loading="lazy">
                         </div>
                         <div class="carousel-item" style="--i:6" role="listitem" tabindex="0">
-                            <img src="images/chapati-ugali.png" alt="Soft Breads" loading="lazy">
+                            <img src="images/cake3.png" alt="Cake" loading="lazy">
                         </div>
                         <div class="carousel-item" style="--i:7" role="listitem" tabindex="0">
-                            <img src="images/pot-roasts.png" alt="Pot Roasts" loading="lazy">
+                            <img src="images/chapati-ugali.png" alt="Soft Breads" loading="lazy">
                         </div>
                         <div class="carousel-item" style="--i:8" role="listitem" tabindex="0">
-                            <img src="images/tossed-salad.png" alt="Tossed Salad" loading="lazy">
+                            <img src="images/pot-roasts.png" alt="Pot Roasts" loading="lazy">
                         </div>
                         <div class="carousel-item" style="--i:9" role="listitem" tabindex="0">
+                            <img src="images/tossed-salad.png" alt="Tossed Salad" loading="lazy">
+                        </div>
+                        <div class="carousel-item" style="--i:10" role="listitem" tabindex="0">
                             <img src="images/watermelon-feta-salad.png" alt="Watermelon Feta Salad" loading="lazy">
+                        </div>
+                        <div class="carousel-item" style="--i:11" role="listitem" tabindex="0">
+                            <img src="images/cake2.png" alt="Cake" loading="lazy">
                         </div>
                         
                     </div>
@@ -185,7 +198,7 @@
                     <span class="sr-only">Claude</span>
                 </a>
             </div>
-            <p>Contact me by WhatsApp <a href="tel:+254702983258">+254 702 983 258</a> or email <a href="mailto:wanjikugrace31@gmail.com">wanjikugrace31@gmail.com</a>. &copy; 2026 Amber & Crimson. All rights reserved.</p>
+            <p>Contact me by WhatsApp <a href="tel:+254702983258">+254 702 983 258</a> or email <a href="mailto:wanjikugrace31@gmail.com">wanjikugrace31@gmail.com</a>. &copy; 2026 Aurelian & Urian. All rights reserved.</p>
         </footer>
 
         <script>
@@ -220,27 +233,41 @@
 
                 const carouselContainer = carousel.parentElement;
                 const containerWidth = (carouselContainer ? carouselContainer.offsetWidth : window.innerWidth) || window.innerWidth;
-                const itemWidth = Math.round(Math.min(320, Math.max(220, containerWidth * 0.62)));
+                const baseWidth = Math.min(320, Math.max(220, containerWidth * 0.62));
+                const shrinkFactor = itemCount > 8 ? Math.max(0.65, 1 - (itemCount - 8) * 0.08) : 1;
+                const itemWidth = Math.round(baseWidth * shrinkFactor);
                 const itemHeight = Math.round(itemWidth * 0.75);
 
-                carousel.style.width = `${Math.min(containerWidth, itemWidth * 1.15, 380)}px`;
+                carousel.style.width = `${Math.min(containerWidth, Math.max(itemWidth * 1.2, 340), 420)}px`;
                 carousel.style.height = `${itemHeight}px`;
 
                 theta = 360 / itemCount;
-                const computedRadius = itemCount > 1 ? Math.round((itemWidth / 2) / Math.tan(Math.PI / itemCount)) : itemWidth;
-                const maxRadius = Math.min(containerWidth * 1.1, 720);
-                const minRadius = Math.max(itemWidth / 2, 180);
+                const spacingFactor = itemCount > 10 ? 1.18 : itemCount > 8 ? 1.12 : 1;
+                const computedRadius = itemCount > 1 ? Math.round((itemWidth / 2) / Math.sin(Math.PI / itemCount) * spacingFactor) : itemWidth;
+                const maxRadius = Math.min(containerWidth * 1.4, 1000);
+                const minRadius = Math.max(itemWidth / 2, 240);
                 radius = Math.max(minRadius, Math.min(computedRadius, maxRadius));
 
                 items.forEach((item, i) => {
                     item.style.width = `${itemWidth}px`;
                     item.style.height = `${itemHeight}px`;
                     const angle = theta * i;
-                    item.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
+                    item.style.transform = `translate(-50%, -50%) rotateY(${angle}deg) translateZ(${radius}px)`;
                     item.style.setProperty('--i', i);
                 });
 
                 carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                updateCarouselDepth();
+            };
+
+            const updateCarouselDepth = () => {
+                if (!itemCount) return;
+                const normalized = ((currentAngle % 360) + 360) % 360;
+                items.forEach((item, i) => {
+                    const itemAngle = ((theta * i + normalized) % 360 + 360) % 360;
+                    const depth = Math.cos(itemAngle * Math.PI / 180);
+                    item.style.zIndex = `${Math.round((depth + 1) * 100)}`;
+                });
             };
 
             window.addEventListener('load', computeCarouselLayout);
@@ -265,6 +292,7 @@
                         lastAutoTs = ts;
                         currentAngle -= autoRotateSpeed * dt;
                         carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                        updateCarouselDepth();
                         autoRotateId = requestAnimationFrame(step);
                     };
                     autoRotateId = requestAnimationFrame(step);
@@ -280,6 +308,7 @@
                     rafPending = true;
                     requestAnimationFrame(() => {
                         carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                        updateCarouselDepth();
                         rafPending = false;
                     });
                 };
@@ -308,6 +337,7 @@
                     carousel.style.transition = 'transform 700ms cubic-bezier(0.22, 0.9, 0.33, 1)';
                     currentAngle += delta;
                     carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                    updateCarouselDepth();
                     // after animation, remove transition and restart auto-rotate
                     setTimeout(() => {
                         carousel.style.transition = originalTransition || '';
@@ -497,6 +527,7 @@
                         carousel.style.transition = 'transform 500ms cubic-bezier(0.22, 0.9, 0.33, 1)';
                         currentAngle += theta;
                         carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                        updateCarouselDepth();
                         setTimeout(() => {
                             carousel.style.transition = originalTransition || '';
                             startAutoRotate();
@@ -507,6 +538,7 @@
                         carousel.style.transition = 'transform 500ms cubic-bezier(0.22, 0.9, 0.33, 1)';
                         currentAngle -= theta;
                         carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                        updateCarouselDepth();
                         setTimeout(() => {
                             carousel.style.transition = originalTransition || '';
                             startAutoRotate();
@@ -529,6 +561,7 @@
                             carousel.style.transition = 'transform 500ms cubic-bezier(0.22, 0.9, 0.33, 1)';
                             currentAngle += dir * theta;
                             carousel.style.transform = `rotateY(${currentAngle}deg)`;
+                            updateCarouselDepth();
                             setTimeout(() => {
                                 carousel.style.transition = originalTransition || '';
                                 startAutoRotate();

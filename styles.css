@@ -3,6 +3,15 @@
     padding: 0;
     box-sizing:border-box;
 }
+:root {
+    --brand-gold: #b07a2f;
+    --brand-plum: #5b3d76;
+    --brand-plum-600: #6b4f8a;
+    --bg-soft: #fff8f2;
+    --muted: #666b73;
+    --card-shadow: rgba(107,79,138,0.12);
+    --radius-lg: 14px;
+}
 
 body {
     font-family: 'Georgia', serif;
@@ -15,16 +24,33 @@ h1, h2, h3 {
 }
 
 header {
-    background-color: #e8e0f0;
-    padding: 20px 40px;
+    background-color: var(--bg-soft);
+    padding: 18px 34px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 1px solid rgba(176,122,47,0.08);
 }
 
-nav h1 {
-    color: #6b4f8a;
-    font-size: 1.5rem;
+/* Brand for Aurelian & Urian */
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.brand-logo {
+    width: 96px;
+    height: auto;
+    display: block;
+}
+
+.brand-text {
+    color: var(--brand-gold);
+    font-family: 'Georgia', serif;
+    font-size: 1.35rem;
+    font-weight: 600;
 }
 
 nav ul {
@@ -35,8 +61,8 @@ nav ul {
 
 nav ul a {
     text-decoration: none;
-    color: #6b4f8a;
-    font-size: 0.95rem;
+    color: var(--brand-plum-600);
+    font-size: 0.98rem;
 }
 
 .nav-toggle {
@@ -56,7 +82,7 @@ nav ul a {
     height: 3px;
     margin-bottom: 6px;
     border-radius: 999px;
-    background: #6b4f8a;
+    background: #b07a2f;
     transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
@@ -84,8 +110,9 @@ nav.open .nav-toggle span:nth-child(3) {
 
 #hero h2 {
     font-size: 2.2rem;
-    color: #6b4f8a;
-    margin-bottom: 15px;
+    color: var(--brand-plum-600);
+    margin-bottom: 12px;
+    line-height: 1.15;
 }
 
 #hero p {
@@ -118,17 +145,18 @@ nav.open .nav-toggle span:nth-child(3) {
 
 .btn {
     display: inline-block;
-    background-color: #6b4f8a;
-    color: white;
-    padding: 14px 35px;
+    background-color: var(--brand-plum);
+    color: #fff;
+    padding: 14px 30px;
     text-decoration: none;
     font-size: 1rem;
-    transition: background 0.3s;
-    border-radius: 30px;
+    transition: background 0.22s ease, transform 0.15s ease;
+    border-radius: 28px;
 }
 
 .btn:hover {
-    background-color: #9b7bbf;
+    background-color: var(--brand-plum-600);
+    transform: translateY(-2px);
 }
 
 #products, #order, #about {
@@ -258,8 +286,8 @@ textarea {
 footer {
     padding: 28px 40px;
     text-align: center;
-    background-color: #f3eef9;
-    color: #555;
+    background-color: var(--bg-soft);
+    color: var(--muted);
 }
 
 footer p {
@@ -361,17 +389,18 @@ footer p {
 
 .btn-small {
     display: inline-block;
-    background-color: #6b4f8a;
-    color: white;
-    padding: 10px 25px;
-    border-radius: 20px;
+    background-color: var(--brand-plum);
+    color: #fff;
+    padding: 9px 22px;
+    border-radius: 18px;
     text-decoration: none;
     font-size: 0.9rem;
-    transition: background 0.3s;
+    transition: background 0.22s ease, transform 0.12s ease;
 }
 
 .btn-small:hover {
-    background-color: #9b7bbf;
+    background-color: var(--brand-plum-600);
+    transform: translateY(-1px);
 }
 
 #gallery {
@@ -394,11 +423,12 @@ footer p {
 
 .carousel-container {
     perspective: 1400px;
+    perspective-origin: center center;
     height: auto;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow: visible;
     padding: 32px 0;
 }
 
@@ -422,7 +452,7 @@ footer p {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.95);
     border: 1px solid rgba(107,79,138,0.08);
     width: 44px;
     height: 44px;
@@ -433,7 +463,7 @@ footer p {
     cursor: pointer;
     box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     font-size: 0.95rem;
-    color: #6b4f8a;
+    color: var(--brand-plum-600);
 }
 
 .carousel-control:focus {
@@ -446,21 +476,27 @@ footer p {
 
 .carousel-item {
     position: absolute;
+    left: 50%;
+    top: 50%;
     width: min(320px, 84vw);
     aspect-ratio: 4 / 3;
     height: auto;
     border-radius: 24px;
     overflow: hidden;
     cursor: pointer;
-    transform: rotateY(calc(var(--i) * 60deg)) translateZ(480px);
+    transform-origin: center center;
+    transform: translate(-50%, -50%) rotateY(calc(var(--i) * 60deg)) translateZ(480px);
     transition: transform 0.45s ease, box-shadow 0.45s ease;
     box-shadow: 0 8px 32px rgba(107, 79, 138, 0.2);
     backdrop-filter: blur(4px);
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    will-change: transform;
 }
 
 .carousel-item:focus {
     box-shadow: 0 18px 48px rgba(107,79,138,0.36);
-    transform: translateZ(520px) rotateY(calc(var(--i) * 60deg));
+    transform: translate(-50%, -50%) rotateY(calc(var(--i) * 60deg)) translateZ(520px);
 }
 
 .carousel-item img {
@@ -701,19 +737,19 @@ footer {
     }
 
     .carousel-container {
-        height: 340px;
+        height: auto;
         overflow: visible;
     }
 
     .carousel {
-        max-width: 320px;
-        height: 240px;
+        max-width: 100%;
+        height: auto;
     }
 
     .carousel-item {
-        width: 260px;
-        height: 190px;
-        transform: rotateY(calc(var(--i) * 60deg)) translateZ(420px);
+        width: min(260px, 78vw);
+        aspect-ratio: 4 / 3;
+        transform: translate(-50%, -50%) rotateY(calc(var(--i) * 60deg)) translateZ(420px);
     }
 
     .order-form {
@@ -774,4 +810,36 @@ footer {
     .order-sub {
         font-size: 0.95rem;
     }
+}
+
+@media (max-width: 860px) {
+    /* Stack header items with logo on top for small screens */
+    nav {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+    }
+    .brand {
+        order: 0;
+        text-align: center;
+    }
+    .nav-toggle {
+        order: 1;
+        align-self: flex-end;
+    }
+    nav ul {
+        order: 2;
+        width: 100%;
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+    nav.open ul {
+        display: flex;
+    }
+    .brand-logo { width: 120px; }
+    .brand-text { font-size: 1.05rem; }
 }
