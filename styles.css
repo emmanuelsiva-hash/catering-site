@@ -24,33 +24,31 @@ h1, h2, h3 {
 }
 
 header {
-    background-color: var(--bg-soft);
+    background-color: transparent;
     padding: 18px 34px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    border-bottom: 1px solid rgba(176,122,47,0.08);
 }
 
 /* Brand for Aurelian & Urian */
 .brand {
     display: inline-flex;
+    flex-direction: column;
     align-items: center;
     gap: 12px;
     text-decoration: none;
 }
 
 .brand-logo {
-    width: 96px;
+    width: 220px;
+    max-width: 280px;
     height: auto;
     display: block;
 }
 
 .brand-text {
-    color: var(--brand-gold);
-    font-family: 'Georgia', serif;
-    font-size: 1.35rem;
-    font-weight: 600;
+    display: none;
 }
 
 nav ul {
